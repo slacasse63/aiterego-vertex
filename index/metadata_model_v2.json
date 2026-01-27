@@ -1,0 +1,76 @@
+{
+  "_schema": {
+    "version": "2.0",
+    "date": "2025-12-11",
+    "description": "Modèle de métadonnées MOSS pour Le Scribe - Version prototype"
+  },
+
+  "identification": {
+    "uuid": "",
+    "source": {
+      "type": "local_ollama | anthropic_export | chatgpt_export | manual",
+      "fichier_origine": ""
+    },
+    "auteur": "human | assistant",
+    "horodatage": {
+      "debut": "",
+      "fin": ""
+    }
+  },
+
+  "tags_roget": {
+    "_comment": "Liste ordonnée par importance décroissante. Format: CC-SSSS-TTTT",
+    "codes": []
+  },
+
+  "entites": {
+    "personnes": [],
+    "lieux": [],
+    "projets": [],
+    "organisations": []
+  },
+
+  "classification": {
+    "type_contenu": "question | decision | reflexion | information | tache | emotion | narration",
+    "domaine": "personnel | professionnel | technique | creatif | administratif"
+  },
+
+  "vecteur_dense": {
+    "_comment": "Valeurs entre -1 et 1 (ou 0 et 1 selon le paramètre). Directement comparables par similarité cosinus.",
+    
+    "emotionnel": {
+      "valence": 0,
+      "activation": 0
+    },
+    
+    "cognitif": {
+      "certitude": 0,
+      "complexite": 0,
+      "abstraction": 0
+    },
+    
+    "physique": {
+      "_comment": "Rempli si mentionné dans le texte OU si source externe (Apple Health, etc.)",
+      "energie": null,
+      "stress": null
+    },
+    
+    "communication": {
+      "clarte": 0,
+      "formalite": 0
+    }
+  },
+
+  "resume": {
+    "_comment": "Généré par Le Scribe, optionnel pour fragments courts",
+    "texte": "",
+    "mots_cles": []
+  },
+
+  "source": {
+    "_comment": "Référence au texte brut dans Layer 1",
+    "chemin_fichier": "",
+    "position_debut": 0,
+    "position_fin": 0
+  }
+}

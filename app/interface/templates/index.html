@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AIter Ego">
+    <meta name="theme-color" content="#1a1a1a">
+    
+    <title>AIter Ego</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --bg: #1a1a1a;
+            --bg-input: #2a2a2a;
+            --text: #e8e8e8;
+            --text-muted: #888;
+            --accent: #9B2335;
+            --accent-soft: rgba(155, 35, 53, 0.15);
+            --mais: #FFF0C8;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-size: 20px;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--safe-top) + 12px) 16px 12px;
+            position: relative;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-logo {
+            height: 50px;
+            width: auto;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4a4a4a;
+        }
+        
+        .status-dot.connected {
+            background: #22c55e;
+        }
+        
+        .status-dot.processing {
+            background: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        .btn-new {
+            position: absolute;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Zone de chat */
+        .chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .message {
+            margin-bottom: 24px;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            color: var(--mais);
+        }
+        
+        .message.assistant {
+            color: var(--text);
+        }
+        
+        .message-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+        
+        .message-content p {
+            margin-bottom: 0.8em;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 0.5em 0 0.5em 1.5em;
+        }
+        
+        .message-content code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.9em;
+        }
+        
+        .message-content pre {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.5em 0;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Zone de saisie */
+        .input-area {
+            padding: 12px 16px calc(var(--safe-bottom) + 24px);
+            background: var(--bg);
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--bg-input);
+            border-radius: 24px;
+            padding: 8px 12px;
+        }
+        
+        .input-left {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .input-left button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1.1em;
+            font-family: inherit;
+            resize: none;
+            min-height: 28px;
+            max-height: 120px;
+            line-height: 1.5;
+            padding: 4px 0;
+        }
+        
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        textarea:focus {
+            outline: none;
+        }
+        
+        .input-right {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .input-right button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-send {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+        
+        .btn-send:disabled {
+            background: var(--bg) !important;
+            color: var(--text-muted) !important;
+        }
+        
+        .btn-mic.recording {
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+        }
+        
+        /* Scrollbar discrète */
+        .chat::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .chat::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+        
+        /* Message de bienvenue */
+        .welcome {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        
+        .welcome-logo {
+            max-width: 500px;
+            width: 90%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        
+        .welcome p {
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="header-title">
+                <img src="/static/logo_header.png" alt="AIter Ego" class="header-logo">
+                <span class="status-dot" id="statusDot"></span>
+            </div>
+            <button class="btn-new" onclick="clearChat()" title="Nouvelle conversation">+</button>
+        </header>
+        
+        <div class="chat" id="chat">
+            <div class="welcome">
+                <img src="/static/logo_welcome.png" alt="AIter Ego" class="welcome-logo">
+                <p>Votre mémoire sémantique augmentée</p>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-left">
+                    <button onclick="toggleMenu()" title="Options">☰</button>
+                </div>
+                <textarea 
+                    id="input" 
+                    placeholder="Répondre à AIter Ego"
+                    onkeydown="handleKeyDown(event)"
+                    oninput="autoResize(this); toggleSendButton()"
+                    rows="1"
+                ></textarea>
+                <div class="input-right">
+                    <button class="btn-mic" id="micBtn" onclick="toggleRecording()" title="Micro">🎤</button>
+                    <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled title="Envoyer">↑</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isFirstMessage = true;
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').catch(err => console.log('SW:', err));
+        }
+        
+        // Connexion
+        checkConnection();
+        setInterval(checkConnection, 30000);
+        
+        async function checkConnection() {
+            const dot = document.getElementById('statusDot');
+            try {
+                const res = await fetch('/health', { timeout: 5000 });
+                const data = await res.json();
+                dot.className = data.backend === 'connected' ? 'status-dot connected' : 'status-dot';
+            } catch {
+                dot.className = 'status-dot';
+            }
+        }
+        
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+        
+        function toggleSendButton() {
+            const btn = document.getElementById('sendBtn');
+            const input = document.getElementById('input');
+            btn.disabled = !input.value.trim();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            if (isFirstMessage) {
+                document.querySelector('.welcome')?.remove();
+                isFirstMessage = false;
+            }
+            
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            toggleSendButton();
+            
+            const dot = document.getElementById('statusDot');
+            dot.className = 'status-dot processing';
+            
+            try {
+                const res = await fetch('/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    addMessage('Erreur: ' + data.error, 'assistant');
+                } else {
+                    addMessage(data.response, 'assistant');
+                }
+                dot.className = 'status-dot connected';
+            } catch (err) {
+                addMessage('Erreur de connexion', 'assistant');
+                dot.className = 'status-dot';
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = 'message ' + sender;
+            
+            let content;
+            if (sender === 'assistant') {
+                content = marked.parse(text);
+            } else {
+                content = escapeHtml(text);
+            }
+            
+            div.innerHTML = '<div class="message-content">' + content + '</div>';
+            chat.appendChild(div);
+            
+            // Scroll pour montrer le début du nouveau message, pas la fin
+            div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function toggleRecording() {
+            const btn = document.getElementById('micBtn');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const form = new FormData();
+                        form.append('audio', blob);
+                        
+                        try {
+                            const res = await fetch('/transcribe', { method: 'POST', body: form });
+                            const data = await res.json();
+                            if (data.transcription) {
+                                document.getElementById('input').value = data.transcription;
+                                autoResize(document.getElementById('input'));
+                                toggleSendButton();
+                            }
+                        } catch {}
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('recording');
+                    btn.textContent = '⏹';
+                } catch {}
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+            }
+        }
+        
+        function clearChat() {
+            document.getElementById('chat').innerHTML = `
+                <div class="welcome">
+                    <img src="/static/logo_welcome.png" alt="AIter Ego" class="welcome-logo">
+                    <p>Votre mémoire sémantique augmentée</p>
+                </div>
+            `;
+            isFirstMessage = true;
+        }
+        
+        function toggleMenu() {
+            if (confirm('Effacer la conversation?')) clearChat();
+        }
+    </script>
+</body>
+</html>

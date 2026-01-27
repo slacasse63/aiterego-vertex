@@ -1,0 +1,39 @@
+# Conteneurs
+*.sif
+
+# Modèles et caches
+models/
+.cache/
+hf_cache/
+__pycache__/
+
+# Environnements virtuels
+venv/
+.venv/
+bin/
+lib/
+
+# Fichiers Ollama
+ollama/
+
+# Données lourdes
+*.safetensors
+*.bin
+*.gguf
+
+# Base de données (optionnel - à toi de décider)
+# data/*.db
+
+# Système
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/
+__MACOSX/
+.ipynb_checkpoints/
+.env
+.env
+
+app/data/fenetre_active.txt

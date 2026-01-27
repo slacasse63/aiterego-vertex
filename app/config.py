@@ -48,7 +48,7 @@ FENETRE_ACTIVE = DATA_DIR / "fenetre_active.txt"
 
 # === SERVEUR ===
 HOST = "0.0.0.0"
-PORT = 8182
+PORT = 8183
 
 # === AZURE (pour plus tard) ===
 AZURE_CONNECTION_STRING = os.environ.get("AZURE_CONNECTION_STRING", "")

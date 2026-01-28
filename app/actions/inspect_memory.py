@@ -25,7 +25,7 @@ from typing import Dict, Any, List, Optional
 EPISODIC_DB = Path("~/Dropbox/aiterego_memory/metadata.db").expanduser()
 
 # Base sémantique (iris_knowledge.db) - connaissances structurées
-SEMANTIC_DB = Path("~/Dropbox/aiterego_memory/iris_knowledge.db").expanduser()
+SEMANTIC_DB = Path("~/Dropbox/aiterego_memory/iris/iris_knowledge.db").expanduser()
 
 
 def inspect_memory(
